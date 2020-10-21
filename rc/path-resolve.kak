@@ -14,10 +14,14 @@ provide-module path-resolve %{
 	hook global BufSetOption (buffile|cwd)=.* %{
 		set-option buffer bufname %sh{
 			if [ -n "$kak_opt_buffile" ]; then
-				realpath -s --relative-to="$kak_opt_cwd" "$kak_opt_buffile"
+				bufname="$(realpath -s --relative-to="$kak_opt_cwd" "$kak_opt_buffile")"
 			else
-				echo "$kak_bufname"
-			fi | sed "s|^$HOME|~|"
+				bufname="$kak_bufname"
+			fi
+			# Abbreviate $HOME as ~
+			[ "${bufname#$HOME}" != "$bufname" ] && bufname="~/${bufname#$HOME}"
+
+			echo "$bufname"
 		}
 	}
 
@@ -30,15 +34,20 @@ provide-module path-resolve %{
 	# FIXME: dir completions?
 	define-command -file-completion -params ..1 path-resolve-change-directory %{
 		set-option global cwd %sh{
-			if [ -z "$1" ]; then
-				directory="$HOME"
-			elif [ "${1#/}" != "$1" ] || [ "${1#\~}" != "$1" ]; then
-				# Absolute path
-				directory="$(echo "$1" | sed "s|^~|$HOME|")" # Expand ~ to $HOME
-			else
-				# Relative path
-				directory="${kak_opt_cwd}/${1}"
-			fi
+			case "$1" in
+				"")
+					directory="$HOME"
+					;;
+				/*)
+					directory="$1"
+					;;
+				~*)
+					directory="${HOME}${1#\~}" # Expand ~ to $HOME
+					;;
+				*)
+					directory="${kak_opt_cwd}/${1}"
+					;;
+			esac
 			cd "$directory"
 			echo "$PWD"
 		}
@@ -59,9 +68,18 @@ provide-module path-resolve %{
 						shift
 						;;
 					*)
-						file="$(echo "$1" | sed "s|^~|$HOME|")" # Expand ~ to $HOME
+						case "$1" in
+							/*)
+								file="$1"
+								;;
+							~*)
+								file="${HOME}${1#\~}" # Expand ~ to $HOME
+								;;
+							*)
+								file="${kak_opt_cwd}/${1}"
+								;;
+						esac
 						shift
-						[ "${file#/}" = "$file" ] && file="${kak_opt_cwd}/${file}"
 						cd "$(dirname "$file")"
 						file="$PWD/$(basename "$file")"
 						printf 'set-option window buffile "%s";' "$file"
