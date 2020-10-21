@@ -29,6 +29,14 @@ plug path-resolve %{
 	alias global e path-resolve-edit
 }
 ```
+or clone the repo into `autoload/` and require+configure manually in `kakrc`:
+```kak
+require-module path-resolve
+unalias global cd change-directory
+unalias global e edit
+alias global cd path-resolve-change-directory
+alias global e path-resolve-edit
+```
 **Note:** With the above, the default `change-directory` and `edit` commands are untouched. Only the `cd` and `e` aliases are replaced with the `path-resolve-` variants.
 This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](dont-dereference-file-path-when-passed-from-the-command-line).
 
