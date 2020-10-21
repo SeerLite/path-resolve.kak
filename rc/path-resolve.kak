@@ -48,7 +48,7 @@ provide-module path-resolve %{
 					directory="${kak_opt_cwd}/${1}"
 					;;
 			esac
-			cd "$directory"
+			cd "$directory" || echo "fail couldn't cd into '$directory'"
 			echo "$PWD"
 		}
 		change-directory %opt{cwd}
@@ -80,7 +80,7 @@ provide-module path-resolve %{
 								;;
 						esac
 						shift
-						cd "$(dirname "$file")"
+						cd "$(dirname "$file")" || echo "fail couldn't cd into '$directory'"
 						file="$PWD/$(basename "$file")"
 						printf 'set-option window buffile "%s";' "$file"
 						printf 'set-option -add window path_resolve_edit_args "%s" %s;' "$file" "$@"
