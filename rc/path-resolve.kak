@@ -27,44 +27,32 @@ provide-module path-resolve %{
 		}
 	}
 
-	define-command -hidden path-resolve-resolve-dirs -params 2 %{
-		set-option %arg{1} %arg{2} %sh{
-			#kak_opt_cwd kak_opt_buffile
-			option_name=kak_opt_${2}
-			eval path=\$$option_name
-			cd "$(dirname $path)"
-			path="$PWD/$(basename "$path")"
-			path="${path%/.}"
-			echo "$path"
-		}
-	}
-
 	# FIXME: dir completions?
 	define-command -file-completion -params ..1 path-resolve-change-directory %{
 		set-option global cwd %sh{
 			if [ -z "$1" ]; then
-				echo "$HOME"
+				directory="$HOME"
 			elif [ "${1#/}" != "$1" ] || [ "${1#\~}" != "$1" ]; then
 				# Absolute path
 				directory="$(echo "$1" | sed "s|^~|$HOME|")" # Expand ~ to $HOME
-				echo "$directory"
 			else
 				# Relative path
-				echo "${kak_opt_cwd}/${1}"
+				directory="${kak_opt_cwd}/${1}"
 			fi
+			cd "$directory"
+			echo "$PWD"
 		}
-		path-resolve-resolve-dirs global cwd
 		change-directory %opt{cwd}
 	}
 
 	define-command -file-completion -params 1..10 path-resolve-edit %{
 		evaluate-commands %sh{
-			# Loop all paramters passed to :edit and add them to path_resolve_edit_args.
-			# Modify the first non-flag parameter with path-resolve-resolve-dirs command,
-			# by setting a temporary option in the window scope.
+			# Loop all paramters passed to :edit and add them to temporary window-scope
+			# path_resolve_edit_args.
+			# Resolve the first non-flag parameter.
 			#
 			# If you know of a better way to do this, let me know.
-		while [ $# -gt 0 ]; do
+			while [ $# -gt 0 ]; do
 				case "$1" in
 					-*)
 						printf 'set-option -add window path_resolve_edit_args "%s";' "$1"
@@ -74,9 +62,10 @@ provide-module path-resolve %{
 						file="$(echo "$1" | sed "s|^~|$HOME|")" # Expand ~ to $HOME
 						shift
 						[ "${file#/}" = "$file" ] && file="${kak_opt_cwd}/${file}"
+						cd "$(dirname "$file")"
+						file="$PWD/$(basename "$file")"
 						printf 'set-option window buffile "%s";' "$file"
-						printf 'path-resolve-resolve-dirs window buffile;'
-						printf 'set-option -add window path_resolve_edit_args "%%opt{buffile}" %s;' "$@"
+						printf 'set-option -add window path_resolve_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
 				esac
