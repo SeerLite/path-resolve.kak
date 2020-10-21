@@ -32,15 +32,9 @@ provide-module path-resolve %{
 			#kak_opt_cwd kak_opt_buffile
 			option_name=kak_opt_${2}
 			eval path=\$$option_name
-			# just trust me with the regex i swear
-			path="$(echo "$path" | sed -E -e 's|(/\.$\|/\./)|/|g' -e 's|//|/|g' -e 's|[^^]/$||')"
-			while [ "${path%*..*}" != "$path" ]; do
-				path="$(echo "$path" | sed 's|//|/|g')"
-				path="$(echo "$path" | sed 's|/[^/]*/\.\.||')"
-				if [ "$path" = "/.." ] || [ "$path" = "/../.." ]; then
-					path=/
-				fi
-			done
+			cd "$(dirname $path)"
+			path="$PWD/$(basename "$path")"
+			path="${path%/.}"
 			echo "$path"
 		}
 	}
