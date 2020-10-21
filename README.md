@@ -54,9 +54,9 @@ hook -once global ClientCreate .* %{
 define-command cycle-location-root %{
 	evaluate-commands %sh{
 		if [ "$kak_opt_cwd" != "$(dirname "$kak_opt_buffile")" ]; then
-			echo "cd $(dirname "$kak_opt_buffile")"
+			printf 'cd "%s"' "$(dirname "$kak_opt_buffile")"
 		else
-			echo "cd $kak_opt_project_root"
+			printf 'cd "%s"' "$kak_opt_project_root"
 		fi
 	}
 }
