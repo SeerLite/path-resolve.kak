@@ -33,7 +33,7 @@ provide-module path-resolve %{
 
 	# FIXME: dir completions?
 	define-command -file-completion -params ..1 path-resolve-change-directory %{
-		set-option global cwd %sh{
+		evaluate-commands %sh{
 			case "$1" in
 				"")
 					directory="$HOME"
@@ -48,8 +48,8 @@ provide-module path-resolve %{
 					directory="${kak_opt_cwd}/${1}"
 					;;
 			esac
-			cd "$directory" || echo "fail couldn't cd into '$directory'"
-			echo "$PWD"
+			cd "$directory" || echo "fail unable cd into '$directory'"
+			printf 'set-option global cwd "%s"' "$PWD"
 		}
 		change-directory %opt{cwd}
 	}
@@ -80,7 +80,7 @@ provide-module path-resolve %{
 								;;
 						esac
 						shift
-						cd "$(dirname "$file")" || echo "fail couldn't cd into '$directory'"
+						cd "$(dirname "$file")" || echo "fail unable to cd into '$(dirname "$file")'"
 						file="$PWD/$(basename "$file")"
 
 						# Remove double '/' when editing file at /
