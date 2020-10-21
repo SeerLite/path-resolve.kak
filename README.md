@@ -72,7 +72,7 @@ for i; do
 			cd "$(dirname "$i")"
 			file="$PWD/$(basename "$i")"
 			cd "$OLDPWD"
-			export KAK_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
+			export KAKOUNE_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
 			break
 			;;
 	esac
@@ -96,7 +96,7 @@ kak() {
 				cd "$(dirname "$i")"
 				file="$PWD/$(basename "$i")"
 				cd "$OLDPWD"
-				export KAK_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
+				export KAKOUNE_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
 				break
 				;;
 		esac
@@ -104,7 +104,7 @@ kak() {
 
 	/usr/bin/kak "$@" # or just 'kak "$@"' if your function isn't called "kak".
 
-	unset KAK_PATH_RESOLVE_BUFFILE
+	unset KAKOUNE_PATH_RESOLVE_BUFFILE
 }
 ```
 

@@ -8,7 +8,7 @@ provide-module path-resolve %{
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
 		set-option global cwd %val{client_env_PWD}
-		set-option buffer buffile %val{client_env_KAK_PATH_RESOLVE_BUFFILE}
+		set-option buffer buffile %val{client_env_KAKOUNE_PATH_RESOLVE_BUFFILE}
 	}
 
 	hook global BufSetOption (buffile|cwd)=.* %{
