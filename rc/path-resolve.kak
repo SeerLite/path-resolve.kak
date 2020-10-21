@@ -69,6 +69,9 @@ provide-module path-resolve %{
 						;;
 					*)
 						case "$1" in
+							"")
+								echo "fail"
+								;;
 							/*)
 								file="$1"
 								;;
