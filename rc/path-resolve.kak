@@ -82,6 +82,10 @@ provide-module path-resolve %{
 						shift
 						cd "$(dirname "$file")" || echo "fail couldn't cd into '$directory'"
 						file="$PWD/$(basename "$file")"
+
+						# Remove double '/' when editing file at /
+						[ "${file#//}" != "${file}" ] && file="/${file#//}"
+
 						printf 'set-option window buffile "%s";' "$file"
 						printf 'set-option -add window path_resolve_edit_args "%s" %s;' "$file" "$@"
 						break
