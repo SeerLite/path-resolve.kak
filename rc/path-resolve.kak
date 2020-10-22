@@ -7,7 +7,14 @@ provide-module resolve-path %{
 
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
-		set-option global cwd %val{client_env_PWD}
+		set-option global cwd %sh{
+			cwd="$kak_client_env_PWD"
+			if [ "$cwd" -ef "$PWD" ]; then
+				printf '%s' "$cwd"
+			else
+				printf '%s' "$PWD"
+			fi
+		}
 		set-option buffer buffile %val{client_env_KAKOUNE_RESOLVE_PATH_BUFFILE}
 	}
 
