@@ -4,7 +4,7 @@ Non-dereferencing directory structure tracker plugin for the [Kakoune](https://k
 [~/dir/dir/symlink/dir] ../../dir/dir/symlink/symlink.txt [+] 1 sel - client0@[413612]
 ```
 
-resolve-path.kak provides alternative `:change-directory` and `:edit` commands and exposes `buffile` and `bufname` options as non-dereferencing counterparts to their builtin `%val` values.
+resolve-path.kak provides alternative `:change-directory` and `:edit` commands and exposes `buffile` and `bufname` options as non-dereferencing variants to their builtin `%val` values.
 
 Additionally, the options `cwd` and `pretty_cwd` exist for your scripting/modeline needs.
 They're pretty much what you can imagine: `/home/you/projects` vs `~/projects`. See [Configuration/Modeline](#modeline).
@@ -42,7 +42,7 @@ This should be good enough to work inside Kakoune. But you may also want to [set
 
 ## Configuration
 ### Modeline
-resolve-path.kak provides the `resolve-path-modelinefmt` command which replaces occurrences of `%val{buffile}` and `%val{bufname}` in the `modelinefmt` with resolve-path.kak's option counterparts.
+resolve-path.kak provides the `resolve-path-modelinefmt` command which replaces occurrences of `%val{buffile}` and `%val{bufname}` in the `modelinefmt` with resolve-path.kak's option variants.
 ```kak
 resolve-path-modeline-fmt-replace global
 ```
