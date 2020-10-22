@@ -1,14 +1,14 @@
-provide-module path-resolve %{
+provide-module resolve-path %{
 	declare-option str cwd
 	declare-option str pretty_cwd
 	declare-option str buffile
 	declare-option str bufname
-	declare-option -hidden str-list path_resolve_edit_args
+	declare-option -hidden str-list resolve_path_edit_args
 
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
 		set-option global cwd %val{client_env_PWD}
-		set-option buffer buffile %val{client_env_KAKOUNE_PATH_RESOLVE_BUFFILE}
+		set-option buffer buffile %val{client_env_KAKOUNE_RESOLVE_PATH_BUFFILE}
 	}
 
 	hook global BufSetOption (buffile|cwd)=.* %{
@@ -32,7 +32,7 @@ provide-module path-resolve %{
 	}
 
 	# FIXME: dir completions?
-	define-command -file-completion -params ..1 path-resolve-change-directory %{
+	define-command -file-completion -params ..1 resolve-path-change-directory %{
 		evaluate-commands %sh{
 			case "$1" in
 				"")
@@ -54,17 +54,17 @@ provide-module path-resolve %{
 		change-directory %opt{cwd}
 	}
 
-	define-command -file-completion -params 1..10 path-resolve-edit %{
+	define-command -file-completion -params 1..10 resolve-path-edit %{
 		evaluate-commands %sh{
 			# Loop all paramters passed to :edit and add them to temporary window-scope
-			# path_resolve_edit_args.
+			# resolve_path_edit_args.
 			# Resolve the first non-flag parameter.
 			#
 			# If you know of a better way to do this, let me know.
 			while [ $# -gt 0 ]; do
 				case "$1" in
 					-*)
-						printf 'set-option -add window path_resolve_edit_args "%s";' "$1"
+						printf 'set-option -add window resolve_path_edit_args "%s";' "$1"
 						shift
 						;;
 					*)
@@ -90,7 +90,7 @@ provide-module path-resolve %{
 						[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
 						printf 'set-option window buffile "%s";' "$file"
-						printf 'set-option -add window path_resolve_edit_args "%s" %s;' "$file" "$@"
+						printf 'set-option -add window resolve_path_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
 				esac
@@ -100,10 +100,10 @@ provide-module path-resolve %{
 		# Pass the current window-scope buffile to the buffer-scope of the buffer once it's created.
 		hook global -once BufCreate %sh{realpath "$kak_opt_buffile"} "set-option buffer buffile %opt{buffile}"
 
-		edit %opt{path_resolve_edit_args}
+		edit %opt{resolve_path_edit_args}
 	}
 
-	define-command path-resolve-modelinefmt-replace -params 1 %{
+	define-command resolve-path-modelinefmt-replace -params 1 %{
 		set-option %arg{1} modelinefmt %sh{
 			echo "$kak_opt_modelinefmt" | sed 's/%val{\(bufname\|buffile\)}/%opt{\1}/g'
 		}

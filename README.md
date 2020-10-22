@@ -1,10 +1,10 @@
-# path-resolve.kak
+# resolve-path.kak
 Non-dereferencing directory structure tracker plugin for the [Kakoune](https://kakoune.org) code editor.
 ```
 [~/dir/dir/symlink/dir] ../../dir/dir/symlink/symlink.txt [+] 1 sel - client0@[413612]
 ```
 
-path-resolve.kak provides alternative `:change-directory` and `:edit` commands and exposes `buffile` and `bufname` options as non-dereferencing counterparts to their builtin `%val` values.
+resolve-path.kak provides alternative `:change-directory` and `:edit` commands and exposes `buffile` and `bufname` options as non-dereferencing counterparts to their builtin `%val` values.
 
 Additionally, the options `cwd` and `pretty_cwd` exist for your scripting/modeline needs.
 They're pretty much what you can imagine: `/home/you/projects` vs `~/projects`. See [Configuration/Modeline](#modeline).
@@ -22,29 +22,29 @@ hook -once ClientCreate .* %{
 ## Installation
 [alexherbo2's plug.kak](https://github.com/alexherbo2/plug.kak)
 ```kak
-plug path-resolve %{
+plug resolve-path %{
 	unalias global cd change-directory
 	unalias global e edit
-	alias global cd path-resolve-change-directory
-	alias global e path-resolve-edit
+	alias global cd resolve-path-change-directory
+	alias global e resolve-path-edit
 }
 ```
 or clone the repo into `autoload/` and require+configure manually in `kakrc`:
 ```kak
-require-module path-resolve
+require-module resolve-path
 unalias global cd change-directory
 unalias global e edit
-alias global cd path-resolve-change-directory
-alias global e path-resolve-edit
+alias global cd resolve-path-change-directory
+alias global e resolve-path-edit
 ```
-**Note:** With the above, the default `change-directory` and `edit` commands are untouched. Only the `cd` and `e` aliases are replaced with the `path-resolve-` variants.
+**Note:** With the above, the default `change-directory` and `edit` commands are untouched. Only the `cd` and `e` aliases are replaced with the `resolve-path-` variants.
 This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](dont-dereference-file-path-when-passed-from-the-command-line).
 
 ## Configuration
 ### Modeline
-path-resolve.kak provides the `path-resolve-modelinefmt` command which replaces occurrences of `%val{buffile}` and `%val{bufname}` in the `modelinefmt` with path-resolve.kak's option counterparts.
+resolve-path.kak provides the `resolve-path-modelinefmt` command which replaces occurrences of `%val{buffile}` and `%val{bufname}` in the `modelinefmt` with resolve-path.kak's option counterparts.
 ```kak
-path-resolve-modeline-fmt-replace global
+resolve-path-modeline-fmt-replace global
 ```
 The `pretty_cwd` option is also a good candidate to place in the modeline if you want to know in what directory you're in.
 ```kak
@@ -53,7 +53,7 @@ set-option global modelinefmt "[%%opt{pretty_cwd}] %opt{modelinefmt}"
 set-option global modelinefmt "%%opt{pretty_cwd} %opt{modelinefmt}"
 ```
 ### Don't dereference file path when passed from the command line
-When the file you want to edit is (inside) a symlink and you pass it as an argument for `kak`, Kakoune will open the file directly and it'll be too late for path-resolve.kak to do anything.
+When the file you want to edit is (inside) a symlink and you pass it as an argument for `kak`, Kakoune will open the file directly and it'll be too late for resolve-path.kak to do anything.
 ```sh
 kak .config/symlink/file.txt
 ```
@@ -72,7 +72,7 @@ for i; do
 			cd "$(dirname "$i")"
 			file="$PWD/$(basename "$i")"
 			cd "$OLDPWD"
-			export KAKOUNE_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
+			export KAKOUNE_RESOLVE_PATH_BUFFILE="$file" # read by resolve-path.kak
 			break
 			;;
 	esac
@@ -96,7 +96,7 @@ kak() {
 				cd "$(dirname "$i")"
 				file="$PWD/$(basename "$i")"
 				cd "$OLDPWD"
-				export KAKOUNE_PATH_RESOLVE_BUFFILE="$file" # read by path-resolve.kak
+				export KAKOUNE_RESOLVE_PATH_BUFFILE="$file" # read by resolve-path.kak
 				break
 				;;
 		esac
@@ -104,7 +104,7 @@ kak() {
 
 	/usr/bin/kak "$@" # or just 'kak "$@"' if your function isn't called "kak".
 
-	unset KAKOUNE_PATH_RESOLVE_BUFFILE
+	unset KAKOUNE_RESOLVE_PATH_BUFFILE
 }
 ```
 
