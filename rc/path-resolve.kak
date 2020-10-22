@@ -18,16 +18,22 @@ provide-module resolve-path %{
 			else
 				bufname="$kak_bufname"
 			fi
+
 			# Abbreviate $HOME as ~
 			[ "${bufname#$HOME}" != "$bufname" ] && bufname="~/${bufname#$HOME}"
 
-			echo "$bufname"
+			printf '%s' "$bufname"
 		}
 	}
 
 	hook global GlobalSetOption cwd=(.*) %{
 		set-option global pretty_cwd %sh{
-			echo "$kak_hook_param_capture_1" | sed "s|^$HOME|~|"
+			pretty_cwd="$kak_hook_param_capture_1"
+
+			# Abbreviate $HOME as ~
+			[ "${pretty_cwd#$HOME}" != "$pretty_cwd" ] && pretty_cwd="~${pretty_cwd#$HOME}"
+
+			printf '%s' "$pretty_cwd"
 		}
 	}
 
@@ -48,7 +54,7 @@ provide-module resolve-path %{
 					directory="${kak_opt_cwd}/${1}"
 					;;
 			esac
-			cd "$directory" || echo "fail unable cd into '$directory'"
+			cd "$directory" || printf 'fail "unable cd into ""%s"""' "$directory"
 			printf 'set-option global cwd "%s"' "$PWD"
 		}
 		change-directory %opt{cwd}
@@ -83,7 +89,7 @@ provide-module resolve-path %{
 								;;
 						esac
 						shift
-						cd "$(dirname "$file")" || echo "fail unable to cd into '$(dirname "$file")'"
+						cd "$(dirname "$file")" || printf 'fail "unable to cd into ""%s"""' "$(dirname "$file")"
 						file="$PWD/$(basename "$file")"
 
 						# Remove double '/' when editing file at /
@@ -105,7 +111,7 @@ provide-module resolve-path %{
 
 	define-command resolve-path-modelinefmt-replace -params 1 %{
 		set-option %arg{1} modelinefmt %sh{
-			echo "$kak_opt_modelinefmt" | sed 's/%val{\(bufname\|buffile\)}/%opt{\1}/g'
+			printf '%s' "$kak_opt_modelinefmt" | sed 's/%val{\(bufname\|buffile\)}/%opt{\1}/g'
 		}
 	}
 }
