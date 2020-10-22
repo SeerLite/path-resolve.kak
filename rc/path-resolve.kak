@@ -1,6 +1,7 @@
 provide-module resolve-path %{
 	declare-option str cwd
 	declare-option str pretty_cwd
+	declare-option -hidden str real_buffile
 	declare-option str buffile
 	declare-option str bufname
 	declare-option -hidden str-list resolve_path_edit_args
@@ -15,13 +16,13 @@ provide-module resolve-path %{
 				printf '%s' "$PWD"
 			fi
 		}
-		set-option buffer buffile %val{client_env_KAKOUNE_RESOLVE_PATH_BUFFILE}
+		set-option buffer real_buffile %val{client_env_KAKOUNE_RESOLVE_PATH_BUFFILE}
 	}
 
-	hook global BufSetOption (buffile|cwd)=.* %{
+	hook global BufSetOption (real_buffile|cwd)=.* %{
 		set-option buffer bufname %sh{
-			if [ -n "$kak_opt_buffile" ]; then
-				bufname="$(realpath -s --relative-to="$kak_opt_cwd" "$kak_opt_buffile")"
+			if [ -n "$kak_opt_real_buffile" ]; then
+				bufname="$(realpath -s --relative-to="$kak_opt_cwd" "$kak_opt_real_buffile")"
 			else
 				bufname="$kak_bufname"
 			fi
@@ -30,6 +31,18 @@ provide-module resolve-path %{
 			[ "${bufname#$HOME}" != "$bufname" ] && bufname="~/${bufname#$HOME}"
 
 			printf '%s' "$bufname"
+		}
+	}
+
+	# So that %opt{buffile} falls back to %opt{bufname} like the builtin %vals
+	hook global BufSetOption real_buffile=(.*) %{
+		set-option buffer buffile %sh{
+			real_buffile="$kak_hook_param_capture_1"
+			if [ -n "$real_buffile" ]; then
+				printf '%s' "$real_buffile"
+			else
+				printf '%s' "$kak_opt_bufname"
+			fi
 		}
 	}
 
@@ -102,7 +115,7 @@ provide-module resolve-path %{
 						# Remove double '/' when editing file at /
 						[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-						printf 'set-option window buffile "%s";' "$file"
+						printf 'set-option window real_buffile "%s";' "$file"
 						printf 'set-option -add window resolve_path_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
@@ -110,8 +123,8 @@ provide-module resolve-path %{
 			done
 		}
 
-		# Pass the current window-scope buffile to the buffer-scope of the buffer once it's created.
-		hook global -once BufCreate %sh{realpath "$kak_opt_buffile"} "set-option buffer buffile %opt{buffile}"
+		# Pass the current window-scope real_buffile to the buffer-scope of the buffer once it's created.
+		hook global -once BufCreate %sh{realpath "$kak_opt_real_buffile"} "set-option buffer real_buffile %opt{real_buffile}"
 
 		edit %opt{resolve_path_edit_args}
 	}

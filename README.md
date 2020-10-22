@@ -9,7 +9,7 @@ resolve-path.kak provides alternative `:change-directory` and `:edit` commands a
 Additionally, the options `cwd` and `pretty_cwd` exist for your scripting/modeline needs.
 They're pretty much what you can imagine: `/home/you/projects` vs `~/projects`. See [Configuration/Modeline](#modeline).
 
-You can use `%opt{bufname}` and `%opt{buffile}` in most places where you'd use the builtin `%val` values. The only difference is that `%opt{buffile}` won't fall back to the value of `opt{bufname}` like the builtin one would.
+You can use `%opt{bufname}` and `%opt{buffile}` in places where you'd use the builtin `%val` values.
 
 **Note:** Options aren't set until the first client has connected to the server (i.e. after `kakrc` is sourced) so if you want to use them at startup you should do so inside a `ClientCreate` hook:
 ```kak
