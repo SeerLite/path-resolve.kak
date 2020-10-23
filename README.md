@@ -38,7 +38,7 @@ alias global cd resolve-path-change-directory
 alias global e resolve-path-edit
 ```
 **Note:** With the above, the default `change-directory` and `edit` commands are untouched. Only the `cd` and `e` aliases are replaced with the `resolve-path-` variants.
-This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](dont-dereference-file-path-when-passed-from-the-command-line).
+This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](#dont-dereference-file-path-when-passed-from-the-command-line).
 
 ## Configuration
 ### Modeline
