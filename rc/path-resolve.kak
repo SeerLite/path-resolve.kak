@@ -82,15 +82,15 @@ provide-module resolve-path %{
 
 	define-command -file-completion -params 1..10 resolve-path-edit %{
 		evaluate-commands %sh{
-			# Loop all paramters passed to :edit and add them to temporary window-scope
+			# Loop all paramters passed to :edit and add them to temporary global
 			# resolve_path_edit_args.
-			# Resolve the first non-flag parameter.
+			# Stop and resolve on first non-flag parameter.
 			#
 			# If you know of a better way to do this, let me know.
 			while [ $# -gt 0 ]; do
 				case "$1" in
 					-*)
-						printf 'set-option -add window resolve_path_edit_args "%s";' "$1"
+						printf 'set-option -add global resolve_path_edit_args "%s";' "$1"
 						shift
 						;;
 					*)
@@ -115,18 +115,19 @@ provide-module resolve-path %{
 						# Remove double '/' when editing file at /
 						[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-						printf 'set-option window real_buffile "%s";' "$file"
-						printf 'set-option -add window resolve_path_edit_args "%s" %s;' "$file" "$@"
+						printf 'set-option global real_buffile "%s";' "$file"
+						printf 'set-option -add global resolve_path_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
 				esac
 			done
 		}
 
-		# Pass the current window-scope real_buffile to the buffer-scope of the buffer once it's created.
-		hook global -once BufCreate %sh{realpath "$kak_opt_real_buffile"} "set-option buffer real_buffile %opt{real_buffile}"
-
 		edit %opt{resolve_path_edit_args}
+		set-option buffer real_buffile %opt{real_buffile}
+
+		set-option global resolve_path_edit_args
+		set-option global real_buffile ''
 	}
 
 	define-command resolve-path-modelinefmt-replace -params 1 %{
