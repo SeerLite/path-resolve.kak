@@ -23,8 +23,6 @@ hook -once ClientCreate .* %{
 [alexherbo2's plug.kak](https://github.com/alexherbo2/plug.kak)
 ```kak
 plug resolve-path "https://github.com/SeerLite/resolve-path.kak" %{
-	unalias global cd change-directory
-	unalias global e edit
 	alias global cd resolve-path-change-directory
 	alias global e resolve-path-edit
 }
@@ -32,8 +30,6 @@ plug resolve-path "https://github.com/SeerLite/resolve-path.kak" %{
 or clone the repo into `autoload/` and require+configure manually in `kakrc`:
 ```kak
 require-module resolve-path
-unalias global cd change-directory
-unalias global e edit
 alias global cd resolve-path-change-directory
 alias global e resolve-path-edit
 ```
