@@ -57,7 +57,7 @@ provide-module resolve-path %{
 		}
 	}
 
-	# FIXME: dir completions?
+	# TODO: dir completions?
 	define-command -file-completion -params ..1 resolve-path-change-directory %{
 		evaluate-commands %sh{
 			case "$1" in
@@ -80,9 +80,9 @@ provide-module resolve-path %{
 		change-directory %opt{cwd}
 	}
 
-	define-command -file-completion -params 1..10 resolve-path-edit %{
+	define-command -file-completion -params .. resolve-path-edit %{
 		evaluate-commands %sh{
-			# Loop all paramters passed to :edit and add them to temporary global
+			# Loop all parameters passed to :edit and add them to temporary global
 			# resolve_path_edit_args.
 			# Stop and resolve on first non-flag parameter.
 			#
@@ -109,12 +109,19 @@ provide-module resolve-path %{
 								;;
 						esac
 						shift
-						cd "$(dirname "$file")" || printf 'fail "unable to cd into ""%s"""' "$(dirname "$file")"
+						dirname="$(dirname "$file")"
+						if [ ! -d "$dirname" ]; then
+							printf 'fail "unable to cd into ""%s"""\n' "$dirname"
+							exit 1
+						fi
+
+						cd "$dirname"
 						file="$PWD/$(basename "$file")"
 
 						# Remove double '/' when editing file at /
 						[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
+						# Use global real_buffile to temporarily store it until we get the new buffer
 						printf 'set-option global real_buffile "%s";' "$file"
 						printf 'set-option -add global resolve_path_edit_args "%s" %s;' "$file" "$@"
 						break
@@ -124,10 +131,12 @@ provide-module resolve-path %{
 		}
 
 		edit %opt{resolve_path_edit_args}
+
+		# Restore temporary global real_buffile
 		set-option buffer real_buffile %opt{real_buffile}
+		set-option global real_buffile ''
 
 		set-option global resolve_path_edit_args
-		set-option global real_buffile ''
 	}
 
 	define-command resolve-path-modelinefmt-replace -params 1 %{
