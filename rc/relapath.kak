@@ -1,10 +1,10 @@
-provide-module resolve-path %{
+provide-module relapath %{
 	declare-option str cwd
 	declare-option str pretty_cwd
 	declare-option -hidden str real_buffile
 	declare-option str buffile
 	declare-option str bufname
-	declare-option -hidden str-list resolve_path_edit_args
+	declare-option -hidden str-list relapath_edit_args
 
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
@@ -58,7 +58,7 @@ provide-module resolve-path %{
 	}
 
 	# TODO: dir completions?
-	define-command -file-completion -params ..1 resolve-path-change-directory %{
+	define-command -file-completion -params ..1 relapath-change-directory %{
 		evaluate-commands %sh{
 			case "$1" in
 				"")
@@ -80,17 +80,17 @@ provide-module resolve-path %{
 		change-directory %opt{cwd}
 	}
 
-	define-command -file-completion -params .. resolve-path-edit %{
+	define-command -file-completion -params .. relapath-edit %{
 		evaluate-commands %sh{
 			# Loop all parameters passed to :edit and add them to temporary global
-			# resolve_path_edit_args.
+			# relapath_edit_args.
 			# Stop and resolve on first non-flag parameter.
 			#
 			# If you know of a better way to do this, let me know.
 			while [ $# -gt 0 ]; do
 				case "$1" in
 					-*)
-						printf 'set-option -add global resolve_path_edit_args "%s";' "$1"
+						printf 'set-option -add global relapath_edit_args "%s";' "$1"
 						shift
 						;;
 					*)
@@ -123,23 +123,23 @@ provide-module resolve-path %{
 
 						# Use global real_buffile to temporarily store it until we get the new buffer
 						printf 'set-option global real_buffile "%s";' "$file"
-						printf 'set-option -add global resolve_path_edit_args "%s" %s;' "$file" "$@"
+						printf 'set-option -add global relapath_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
 				esac
 			done
 		}
 
-		edit %opt{resolve_path_edit_args}
+		edit %opt{relapath_edit_args}
 
 		# Restore temporary global real_buffile
 		set-option buffer real_buffile %opt{real_buffile}
 		set-option global real_buffile ''
 
-		set-option global resolve_path_edit_args
+		set-option global relapath_edit_args
 	}
 
-	define-command resolve-path-modelinefmt-replace -params 1 %{
+	define-command relapath-modelinefmt-replace -params 1 %{
 		set-option %arg{1} modelinefmt %sh{
 			printf '%s' "$kak_opt_modelinefmt" | sed 's/%val{\(bufname\|buffile\)}/%opt{\1}/g'
 		}
