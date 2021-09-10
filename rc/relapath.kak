@@ -8,15 +8,18 @@ provide-module relapath %{
 
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
-		set-option global cwd %sh{
+		evaluate-commands %sh{
 			cwd="$kak_client_env_PWD"
 			if [ "$cwd" -ef "$PWD" ]; then
-				printf '%s' "$cwd"
+				printf 'set-option global cwd "%s";' "$cwd"
 			else
-				printf '%s' "$PWD"
+				printf 'set-option global cwd "%s";' "$PWD"
+			fi
+
+			if [ "$kak_buffile" = "$(realpath "$KAKOUNE_RELAPATH_BUFFILE")" ]; then
+				printf 'set-option buffer real_buffile "%s"' "$KAKOUNE_RELAPATH_BUFFILE"
 			fi
 		}
-		set-option buffer real_buffile %val{client_env_KAKOUNE_RESOLVE_PATH_BUFFILE}
 	}
 
 	hook global BufSetOption (real_buffile|cwd)=.* %{

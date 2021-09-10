@@ -50,9 +50,11 @@ set-option global modelinefmt "%%opt{pretty_cwd} %opt{modelinefmt}"
 ```
 ### Don't dereference file path when passed from the command line
 When the file you want to edit is (inside) a symlink and you pass it as an argument for `kak`, Kakoune will open the file directly and it'll be too late for relapath.kak to do anything.
+
 ```sh
 kak .config/symlink/file.txt
 ```
+
 As a workaround, we can setup a wrapper for `kak` and use that instead of the real `kak` binary:
 ```sh
 #!/bin/sh
@@ -62,14 +64,16 @@ for i in "$@"; do
         cd "$(dirname "$i")"
         file="$PWD/$(basename "$i")"
         cd "$OLDPWD"
-        export KAKOUNE_RESOLVE_PATH_BUFFILE="$file"
+        export KAKOUNE_RELAPATH_BUFFILE="$file"
         break
     fi
 done
 
 exec kak "$@"
 ```
-Copy it to somewhere in your `$PATH` and you should be good to go!
+relapath.kak will use the value of `$KAKOUNE_RELAPATH_BUFFILE` as the non-dereferencing path to the file you're opening.
+
+Put the above in a script in your `$PATH` and you should be good to go!
 Just make sure it's called something different than `kak` to avoid a recursive exec. I personally call mine `k`.
 
 As an alternative, you can set it up as a function in `.bashrc`/`.zshrc`:
@@ -80,14 +84,14 @@ kak() {
             cd "$(dirname "$i")"
             file="$PWD/$(basename "$i")"
             cd "$OLDPWD"
-            export KAKOUNE_RESOLVE_PATH_BUFFILE="$file"
+            export KAKOUNE_RELAPATH_BUFFILE="$file"
             break
         fi
     done
 
     command kak "$@"
 
-    unset KAKOUNE_RESOLVE_PATH_BUFFILE
+    unset KAKOUNE_RELAPATH_BUFFILE
 }
 ```
 
