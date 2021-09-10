@@ -2,10 +2,8 @@ provide-module relapath %{
 	declare-option str cwd
 	declare-option str pretty_cwd
 	declare-option -hidden str real_buffile
-	declare-option -hidden str tmp_real_buffile
 	declare-option str buffile
 	declare-option str bufname
-	declare-option -hidden str-list tmp_relapath_edit_args
 
 	evaluate-commands -buffer '*debug*' %{
 		set-option buffer buffile %val{buffile}
@@ -86,7 +84,7 @@ provide-module relapath %{
 
 			dirname="$(dirname "$file")"
 			if [ ! -d "$dirname" ]; then
-				printf 'fail "unable to cd into ""%s"""\n' "$dirname"
+				printf 'fail "unable to cd to ""%s"""\n' "$dirname"
 				exit 1
 			fi
 
@@ -97,62 +95,30 @@ provide-module relapath %{
 	}
 
 	define-command -file-completion -params .. relapath-edit %{
+		edit %arg{@}
 		evaluate-commands %sh{
-			# Loop all parameters passed to :edit and add them to temporary global
-			# tmp_relapath_edit_args.
-			# Stop and resolve on first non-flag parameter.
-			#
-			# If you know of a better way to do this, let me know.
-			while [ $# -gt 0 ]; do
-				case "$1" in
-					-*)
-						printf 'set-option -add global tmp_relapath_edit_args "%s";' "$1"
-						shift
-						;;
-					*)
-						case "$1" in
-							"")
-								echo "fail"
-								;;
-							/*)
-								file="$1"
-								;;
-							~*)
-								file="${HOME}${1#\~}" # Expand ~ to $HOME
-								;;
-							*)
-								file="${kak_opt_cwd}/${1}"
-								;;
-						esac
-						shift
-						dirname="$(dirname "$file")"
-						if [ ! -d "$dirname" ]; then
-							printf 'fail "unable to cd into ""%s"""\n' "$dirname"
-							exit 1
-						fi
+			# Loop all parameters passed to :edit until finding one that matches same path as buffile
+			for arg in "$@"; do
+				if [ "$(realpath -- "$arg")" = "$kak_buffile" ]; then
+					file="$arg"
+					dirname="$(dirname "$file")"
+					if [ ! -d "$dirname" ]; then
+						printf 'fail "unable to cd to ""%s"""\n' "$dirname"
+						exit 1
+					fi
 
-						cd "$dirname"
-						file="$PWD/$(basename "$file")"
+					cd "$dirname"
+					file="$PWD/$(basename "$file")"
 
-						# Remove double '/' when editing file at /
-						[ "${file#//}" != "${file}" ] && file="/${file#//}"
+					# Remove double '/' when editing file at /
+					[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-						# Use global tmp_real_buffile to temporarily store it until we get the new buffer
-						printf 'set-option global tmp_real_buffile "%s";' "$file"
-						printf 'set-option -add global tmp_relapath_edit_args "%s" %s;' "$file" "$@"
-						break
-						;;
-				esac
+					# printf 'hook -once global WinDisplay "%s" %%{ set-option buffer real_buffile "%s" };' "$(realpath "$file")" "$file"
+					printf 'set-option buffer real_buffile "%s"' "$file"
+					break
+				fi
 			done
 		}
-
-		edit %opt{tmp_relapath_edit_args}
-
-		# Restore temporary global real_buffile
-		set-option buffer real_buffile %opt{tmp_real_buffile}
-		set-option global tmp_real_buffile ''
-
-		set-option global tmp_relapath_edit_args
 	}
 
 	define-command relapath-modelinefmt-replace -params 1 %{
