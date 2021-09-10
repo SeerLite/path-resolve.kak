@@ -7,6 +7,11 @@ provide-module relapath %{
 	declare-option str bufname
 	declare-option -hidden str-list tmp_relapath_edit_args
 
+	evaluate-commands -buffer '*debug*' %{
+		set-option buffer buffile %val{buffile}
+		set-option buffer bufname %val{bufname}
+	}
+
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
 		evaluate-commands %sh{
