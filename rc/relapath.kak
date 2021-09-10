@@ -74,7 +74,14 @@ provide-module relapath %{
 					directory="${kak_opt_cwd}/${1}"
 					;;
 			esac
-			cd "$directory" || printf 'fail "unable cd into ""%s"""' "$directory"
+
+			dirname="$(dirname "$file")"
+			if [ ! -d "$dirname" ]; then
+				printf 'fail "unable to cd into ""%s"""\n' "$dirname"
+				exit 1
+			fi
+
+			cd "$dirname"
 			printf 'set-option global cwd "%s"' "$PWD"
 		}
 		change-directory %opt{cwd}
