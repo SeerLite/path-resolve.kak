@@ -16,7 +16,7 @@ provide-module relapath %{
 				printf 'set-option global cwd "%s";' "$PWD"
 			fi
 
-			if [ "$kak_buffile" = "$(realpath "$KAKOUNE_RELAPATH_BUFFILE")" ]; then
+			if [ -n "$KAKOUNE_RELAPATH_BUFFILE" ] && [ "$kak_buffile" = "$(realpath "$KAKOUNE_RELAPATH_BUFFILE")" ]; then
 				printf 'set-option buffer real_buffile "%s"' "$KAKOUNE_RELAPATH_BUFFILE"
 			fi
 		}
