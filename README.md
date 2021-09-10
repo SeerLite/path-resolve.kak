@@ -14,7 +14,7 @@ You can use `%opt{bufname}` and `%opt{buffile}` in places where you'd use the bu
 **Note:** Options aren't set until the first client has connected to the server (i.e. after `kakrc` is sourced) so if you want to use them at startup you should do so inside a `ClientCreate` hook:
 ```kak
 hook -once ClientCreate .* %{
-	# ...
+    # ...
 }
 ```
 **Warning:** Changing any of the plugin's options manually can mess up its functionality. Prefer using them as read-only values.
@@ -23,8 +23,8 @@ hook -once ClientCreate .* %{
 [alexherbo2's plug.kak](https://github.com/alexherbo2/plug.kak)
 ```kak
 plug relapath "https://github.com/SeerLite/relapath.kak" %{
-	alias global cd relapath-change-directory
-	alias global e relapath-edit
+    alias global cd relapath-change-directory
+    alias global e relapath-edit
 }
 ```
 or clone the repo into `autoload/` and require+configure manually in `kakrc`:
@@ -57,69 +57,59 @@ As a workaround, we can setup a wrapper for `kak` and use that instead of the re
 ```sh
 #!/bin/sh
 
-for i; do
-	case "$i" in
-		-c | -e | -E | -s | -p | -f | -i | -ui | -debug)
-			continue 2
-			;;
-		-*)
-			;;
-		*)
-			cd "$(dirname "$i")"
-			file="$PWD/$(basename "$i")"
-			cd "$OLDPWD"
-			export KAKOUNE_RESOLVE_PATH_BUFFILE="$file" # read by relapath.kak
-			break
-			;;
-	esac
+for i in "$@"; do
+    if [ -f "$i" ] || [ -d "$(dirname "$i")" ]; then
+        cd "$(dirname "$i")"
+        file="$PWD/$(basename "$i")"
+        cd "$OLDPWD"
+        export KAKOUNE_RESOLVE_PATH_BUFFILE="$file"
+        break
+    fi
 done
 
-exec /usr/bin/kak "$@" # or just 'exec kak "$@"' if your wrapper isn't called "kak".
+exec kak "$@"
 ```
 Copy it to somewhere in your `$PATH` and you should be good to go!
+Just make sure it's called something different than `kak` to avoid a recursive exec. I personally call mine `k`.
 
 As an alternative, you can set it up as a function in `.bashrc`/`.zshrc`:
 ```sh
 kak() {
-	for i; do
-		case "$i" in
-			-c | -e | -E | -s | -p | -f | -i | -ui | -debug)
-				continue 2
-				;;
-			-*)
-				;;
-			*)
-				cd "$(dirname "$i")"
-				file="$PWD/$(basename "$i")"
-				cd "$OLDPWD"
-				export KAKOUNE_RESOLVE_PATH_BUFFILE="$file" # read by relapath.kak
-				break
-				;;
-		esac
-	done
+    for i in "$@"; do
+        if [ -f "$i" ] || [ -d "$(dirname "$i")" ]; then
+            cd "$(dirname "$i")"
+            file="$PWD/$(basename "$i")"
+            cd "$OLDPWD"
+            export KAKOUNE_RESOLVE_PATH_BUFFILE="$file"
+            break
+        fi
+    done
 
-	/usr/bin/kak "$@" # or just 'kak "$@"' if your function isn't called "kak".
+    command kak "$@"
 
-	unset KAKOUNE_RESOLVE_PATH_BUFFILE
+    unset KAKOUNE_RESOLVE_PATH_BUFFILE
 }
 ```
+
+Using `command kak` makes sure the `kak` in `$PATH` gets called instead of the function calling itself recursively.
+You can use just `kak` if you name your function something else, like `k`.
 
 ## Examples
 ### Cycle between file location and project root
 ```kak
 declare-option str project_root
 hook -once global ClientCreate .* %{
-	set-option global project_root %opt{cwd}
+    set-option global project_root %opt{cwd}
 }
 
 define-command cycle-location-root %{
-	evaluate-commands %sh{
-		if [ "$kak_opt_cwd" != "$(dirname "$kak_opt_buffile")" ]; then
-			printf 'cd "%s"' "$(dirname "$kak_opt_buffile")"
-		else
-			printf 'cd "%s"' "$kak_opt_project_root"
-		fi
-	}
+    evaluate-commands %sh{
+        if [ "$kak_opt_cwd" != "$(dirname "$kak_opt_buffile")" ]; then
+            printf 'cd "%s"' "$(dirname "$kak_opt_buffile")"
+        else
+            printf 'cd "%s"' "$kak_opt_project_root"
+        fi
+    }
 }
 
 map global normal <a-Q> ': cycle-location-root<ret>'
