@@ -2,9 +2,10 @@ provide-module relapath %{
 	declare-option str cwd
 	declare-option str pretty_cwd
 	declare-option -hidden str real_buffile
+	declare-option -hidden str tmp_real_buffile
 	declare-option str buffile
 	declare-option str bufname
-	declare-option -hidden str-list relapath_edit_args
+	declare-option -hidden str-list tmp_relapath_edit_args
 
 	# Use parent shell $PWD
 	hook -once global ClientCreate .* %{
@@ -93,14 +94,14 @@ provide-module relapath %{
 	define-command -file-completion -params .. relapath-edit %{
 		evaluate-commands %sh{
 			# Loop all parameters passed to :edit and add them to temporary global
-			# relapath_edit_args.
+			# tmp_relapath_edit_args.
 			# Stop and resolve on first non-flag parameter.
 			#
 			# If you know of a better way to do this, let me know.
 			while [ $# -gt 0 ]; do
 				case "$1" in
 					-*)
-						printf 'set-option -add global relapath_edit_args "%s";' "$1"
+						printf 'set-option -add global tmp_relapath_edit_args "%s";' "$1"
 						shift
 						;;
 					*)
@@ -131,22 +132,22 @@ provide-module relapath %{
 						# Remove double '/' when editing file at /
 						[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-						# Use global real_buffile to temporarily store it until we get the new buffer
-						printf 'set-option global real_buffile "%s";' "$file"
-						printf 'set-option -add global relapath_edit_args "%s" %s;' "$file" "$@"
+						# Use global tmp_real_buffile to temporarily store it until we get the new buffer
+						printf 'set-option global tmp_real_buffile "%s";' "$file"
+						printf 'set-option -add global tmp_relapath_edit_args "%s" %s;' "$file" "$@"
 						break
 						;;
 				esac
 			done
 		}
 
-		edit %opt{relapath_edit_args}
+		edit %opt{tmp_relapath_edit_args}
 
 		# Restore temporary global real_buffile
-		set-option buffer real_buffile %opt{real_buffile}
-		set-option global real_buffile ''
+		set-option buffer real_buffile %opt{tmp_real_buffile}
+		set-option global tmp_real_buffile ''
 
-		set-option global relapath_edit_args
+		set-option global tmp_relapath_edit_args
 	}
 
 	define-command relapath-modelinefmt-replace -params 1 %{
