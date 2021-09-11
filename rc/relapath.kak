@@ -27,8 +27,8 @@ provide-module relapath %{
 			for arg in $KAKOUNE_RELAPATH_KAK_ARGS_B64; do
 				file="$(printf '%s' "$arg" | base64 -d)"
 				printf 'echo -debug "%s"\n' "$file"
-				if [ -n "$file" ] && [ "$kak_buffile" = "$(realpath "$file")" ]; then
-					cd "$(dirname "$file")"
+				if [ -n "$file" ] && [ "$kak_buffile" = "$(realpath -- "$file")" ]; then
+					cd "$(dirname -- "$file")"
 					file="$PWD/$(basename "$file")"
 					printf 'set-option buffer real_buffile "%s"' "$file"
 					break
@@ -40,7 +40,7 @@ provide-module relapath %{
 	hook global BufSetOption (real_buffile|cwd)=.* %{
 		set-option buffer bufname %sh{
 			if [ -n "$kak_opt_real_buffile" ]; then
-				bufname="$(realpath -s --relative-to="$kak_opt_cwd" "$kak_opt_real_buffile")"
+				bufname="$(realpath -s --relative-to="$kak_opt_cwd" -- "$kak_opt_real_buffile")"
 			else
 				bufname="$kak_bufname"
 			fi
@@ -77,7 +77,7 @@ provide-module relapath %{
 
 	define-command -hidden relapath-check-buffiles-match %{
 		evaluate-commands %sh{
-			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$kak_buffile" != "$(realpath "$kak_opt_buffile")" ]; then
+			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$kak_buffile" != "$(realpath -- "$kak_opt_buffile")" ]; then
 				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' changed. Falling back to %%val{buffile}: '$kak_buffile'."
 				printf 'set-option buffer real_buffile "%s"' "$kak_buffile"
 			fi
@@ -124,7 +124,7 @@ provide-module relapath %{
 			for arg in "$@"; do
 				if [ "$(realpath -- "$arg")" = "$kak_buffile" ]; then
 					file="$arg"
-					dirname="$(dirname "$file")"
+					dirname="$(dirname -- "$file")"
 					if [ ! -d "$dirname" ]; then
 						printf 'fail "unable to cd to ""%s"""\n' "$dirname"
 						exit 1
