@@ -79,12 +79,12 @@ provide-module relapath %{
 
 	define-command -hidden relapath-check-buffiles-and-cwd %{
 		evaluate-commands %sh{
-			if [ "$PWD" != "$(realpath -- "$kak_opt_cwd" 2>/dev/null)" ]; then
+			if [ "$(realpath -- "$kak_opt_cwd" 2>/dev/null)" != "$(realpath -- "$PWD" 2>/dev/null)" ]; then
 				printf 'echo -debug "%s";' "relapath.kak: Working directory '$kak_opt_cwd' doesn't match internal one. Falling back to '$PWD'."
 				printf 'set-option global cwd "%s";' "$PWD"
 			fi
 
-			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
+			if [ "$kak_opt_buffile" != "$kak_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
 				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
 				printf 'set-option buffer relapath_real_buffile "%s";' "$kak_buffile"
 			fi
