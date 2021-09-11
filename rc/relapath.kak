@@ -37,6 +37,7 @@ provide-module relapath %{
 			done
 			printf 'set-option buffer relapath_real_buffile "%s"' "$file"
 		}
+		relapath-check-buffiles-and-cwd
 	}
 
 	hook global BufSetOption (relapath_real_buffile|cwd)=.* %{
