@@ -64,6 +64,18 @@ provide-module relapath %{
 		}
 	}
 
+	define-command -hidden relapath-check-buffiles-match %{
+		evaluate-commands %sh{
+			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$kak_buffile" != "$(realpath "$kak_opt_buffile")" ]; then
+				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' changed. Falling back to %%val{buffile}: '$kak_buffile'."
+				printf 'set-option buffer real_buffile "%s"' "$kak_buffile"
+			fi
+		}
+	}
+
+	hook global BufWritePost .* relapath-check-buffiles-match
+	hook global NormalIdle .* relapath-check-buffiles-match
+
 	# TODO: dir completions?
 	define-command -file-completion -params ..1 relapath-change-directory %{
 		evaluate-commands %sh{
