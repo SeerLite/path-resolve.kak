@@ -4,6 +4,9 @@ provide-module relapath %{
 	declare-option -hidden str real_buffile
 	declare-option str buffile
 	declare-option str bufname
+	alias global relapath-originalcmd-change-directory change-directory
+	alias global relapath-originalcmd-edit edit
+	alias global relapath-originalcmd-edit-bang edit!
 
 	evaluate-commands -buffer '*debug*' %{
 		set-option buffer buffile %val{buffile}
@@ -102,7 +105,7 @@ provide-module relapath %{
 			cd "$directory"
 			printf 'set-option global cwd "%s"' "$PWD"
 		}
-		change-directory %opt{cwd}
+		relapath-originalcmd-change-directory %opt{cwd}
 	}
 
 	define-command -hidden -file-completion -params .. relapath-edit-unwrapped %{
@@ -134,11 +137,11 @@ provide-module relapath %{
 	}
 
 	define-command -file-completion -params .. relapath-edit %{
-		relapath-edit-unwrapped edit %arg{@}
+		relapath-edit-unwrapped relapath-originalcmd-edit %arg{@}
 	}
 
 	define-command -file-completion -params .. relapath-edit-bang %{
-		relapath-edit-unwrapped edit! %arg{@}
+		relapath-edit-unwrapped relapath-originalcmd-edit-bang %arg{@}
 	}
 
 	define-command relapath-modelinefmt-replace -params 1 %{

@@ -4,7 +4,7 @@ Non-dereferencing directory structure tracker plugin for the [Kakoune](https://k
 [~/dir/dir/symlink/dir] ../../dir/dir/symlink/symlink.txt [+] 1 sel - client0@[413612]
 ```
 
-relapath.kak provides alternative `:change-directory` and `:edit` commands and exposes `buffile` and `bufname` options as non-dereferencing variants to their builtin `%val` values.
+relapath.kak provides alternative wrappers for the `:change-directory` and `:edit[!]` commands and exposes `buffile` and `bufname` options as non-dereferencing variants to their builtin `%val` values.
 
 Additionally, the options `cwd` and `pretty_cwd` exist for your scripting/modeline needs.
 They're pretty much what you can imagine: `/home/you/projects` vs `~/projects`. See [Configuration/Modeline](#modeline).
@@ -25,6 +25,12 @@ hook -once ClientCreate .* %{
 plug "https://github.com/SeerLite/relapath.kak" demand relapath %{
     alias global cd relapath-change-directory
     alias global e relapath-edit
+    alias global e! relapath-edit-bang
+
+    # Necessary if you use change-directory/edit[!] elsewhere (like other plugins)
+    alias global change-directory relapath-change-directory
+    alias global edit relapath-edit
+    alias global edit! relapath-edit-bang
 }
 ```
 or clone the repo into `autoload/` and require+configure manually in `kakrc`:
@@ -32,8 +38,16 @@ or clone the repo into `autoload/` and require+configure manually in `kakrc`:
 require-module relapath
 alias global cd relapath-change-directory
 alias global e relapath-edit
+alias global e! relapath-edit-bang
+
+# Necessary if you use change-directory/edit[!] elsewhere (like other plugins)
+alias global change-directory relapath-change-directory
+alias global edit relapath-edit
+alias global edit! relapath-edit-bang
 ```
-**Note:** With the above, the default `change-directory` and `edit` commands are untouched. Only the `cd` and `e` aliases are replaced with the `relapath-` variants.
+**Note:** With the above, the builtin `change-directory` and `edit[!]` commands are still available as `relapath-originalcmd-change-directory` and `relapath-originalcmd-edit[-bang]`, respectively.
+You can skip aliasing the long versions and alias only the short ones, but if you or other plugins use those commands elsewhere, relapath.kak won't be able to use their arguments.
+
 This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](#dont-dereference-file-path-when-passed-from-the-command-line).
 
 ## Configuration
