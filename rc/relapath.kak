@@ -1,7 +1,7 @@
 provide-module relapath %{
 	declare-option str cwd
 	declare-option str pretty_cwd
-	declare-option -hidden str real_buffile
+	declare-option -hidden str relapath_real_buffile
 	declare-option str buffile
 	declare-option str bufname
 	alias global relapath-originalcmd-change-directory change-directory
@@ -36,15 +36,15 @@ provide-module relapath %{
 				fi
 			done
 			[ -z "$file" ] && file="$kak_buffile"
-			printf 'set-option buffer real_buffile "%s"' "$file"
+			printf 'set-option buffer relapath_real_buffile "%s"' "$file"
 		}
 	}
 
-	hook global BufSetOption (real_buffile|cwd)=.* %{
+	hook global BufSetOption (relapath_real_buffile|cwd)=.* %{
 		set-option buffer bufname %sh{
-			bufname="$(realpath -s --relative-to="$kak_opt_cwd" -- "$kak_opt_real_buffile" 2>/dev/null)"
+			bufname="$(realpath -s --relative-to="$kak_opt_cwd" -- "$kak_opt_relapath_real_buffile" 2>/dev/null)"
 
-			# Fall back to %val{bufname} if %opt{real_buffile} was empty or in a non-existing directory
+			# Fall back to %val{bufname} if %opt{relapath_real_buffile} was empty or in a non-existing directory
 			[ -z "$bufname" ] && bufname="$kak_bufname"
 
 			# Abbreviate $HOME as ~
@@ -55,11 +55,11 @@ provide-module relapath %{
 	}
 
 	# So that %opt{buffile} falls back to %opt{bufname} like the builtin %vals
-	hook global BufSetOption real_buffile=(.*) %{
+	hook global BufSetOption relapath_real_buffile=(.*) %{
 		set-option buffer buffile %sh{
-			real_buffile="$kak_hook_param_capture_1"
-			if [ -n "$real_buffile" ]; then
-				printf '%s' "$real_buffile"
+			relapath_real_buffile="$kak_hook_param_capture_1"
+			if [ -n "$relapath_real_buffile" ]; then
+				printf '%s' "$relapath_real_buffile"
 			else
 				printf '%s' "$kak_opt_bufname"
 			fi
@@ -81,7 +81,7 @@ provide-module relapath %{
 		evaluate-commands %sh{
 			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
 				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
-				printf 'set-option buffer real_buffile "%s"' "$kak_buffile"
+				printf 'set-option buffer relapath_real_buffile "%s"' "$kak_buffile"
 			fi
 		}
 	}
@@ -141,8 +141,8 @@ provide-module relapath %{
 					# Remove double '/' when editing file at /
 					[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-					# printf 'hook -once global WinDisplay "%s" %%{ set-option buffer real_buffile "%s" };' "$(realpath "$file")" "$file"
-					printf 'set-option buffer real_buffile "%s"' "$file"
+					# printf 'hook -once global WinDisplay "%s" %%{ set-option buffer relapath_real_buffile "%s" };' "$(realpath "$file")" "$file"
+					printf 'set-option buffer relapath_real_buffile "%s"' "$file"
 					break
 				fi
 			done
