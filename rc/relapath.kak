@@ -92,6 +92,8 @@ provide-module relapath %{
 	# TODO: dir completions?
 	define-command -file-completion -params ..1 relapath-change-directory %{
 		evaluate-commands %sh{
+			cd "$kak_opt_cwd"
+
 			case "$1" in
 				"")
 					directory="$HOME"
@@ -122,6 +124,8 @@ provide-module relapath %{
 		# Will use edit or edit! depending on first argument passed by the wrapper commands
 		%arg{@}
 		evaluate-commands %sh{
+			cd "$kak_opt_cwd"
+
 			# Loop all parameters passed to :edit until finding one that matches same path as buffile
 			for arg in "$@"; do
 				if [ "$(realpath -- "$arg" 2>/dev/null)" = "$kak_buffile" ]; then
