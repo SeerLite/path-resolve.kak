@@ -24,9 +24,14 @@ provide-module relapath %{
 				printf 'set-option global cwd "%s";' "$PWD"
 			fi
 
-			if [ -n "$KAKOUNE_RELAPATH_BUFFILE" ] && [ "$kak_buffile" = "$(realpath "$KAKOUNE_RELAPATH_BUFFILE")" ]; then
-				printf 'set-option buffer real_buffile "%s"' "$KAKOUNE_RELAPATH_BUFFILE"
-			fi
+			for arg in $KAKOUNE_RELAPATH_KAK_ARGS_B64; do
+				file="$(printf '%s' "$arg" | base64 -d)"
+				printf 'echo -debug "%s"\n' "$file"
+				if [ -n "$file" ] && [ "$kak_buffile" = "$(realpath "$file")" ]; then
+					printf 'set-option buffer real_buffile "%s"' "$file"
+					break
+				fi
+			done
 		}
 	}
 
