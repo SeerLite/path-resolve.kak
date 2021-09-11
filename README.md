@@ -93,20 +93,17 @@ As a workaround, we can setup a wrapper for `kak` and use that instead of the re
 ```sh
 #!/bin/sh
 
-export KAKOUNE_RELAPATH_KAK_ARGS_B64
+export KAKOUNE_RELAPATH_KAK_ARGS
 
 for arg in "$@"; do
-    KAKOUNE_RELAPATH_KAK_ARGS_B64="${KAKOUNE_RELAPATH_KAK_ARGS_B64}${sep}$(printf '%s' "$arg" | base64)"
+    KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${sep}$(printf '%q' "$arg")"
     sep=" "
 done
 
 exec kak "$@"
 ```
 
-relapath.kak will scan the encoded arguments in `$KAKOUNE_RELAPATH_KAK_ARGS_B64` and try to match the file you're editing.
-
-**Note:** I'm using Base64 as it was the safest and easiest way I found to escape the arguments. Other solutions required meticulous parsing or the use of `eval`.
-`base64` should be completely unnoticeable and cause no visible delay when starting Kakoune. Feel free to inform me if you know of a better way to pass these arguments to relapath.kak ;)
+relapath.kak will check each argument in `$KAKOUNE_RELAPATH_KAK_ARGS` and try to match the file you're editing.
 
 Put the above in a script in your `$PATH` and you should be good to go!
 Just make sure it's called something different than `kak` to avoid a recursive exec. I personally call mine `k`.
@@ -114,16 +111,16 @@ Just make sure it's called something different than `kak` to avoid a recursive e
 As an alternative, you can set it up as a function in `.bashrc`/`.zshrc`:
 ```sh
 kak() {
-    export KAKOUNE_RELAPATH_KAK_ARGS_B64
+    export KAKOUNE_RELAPATH_KAK_ARGS
 
     for arg in "$@"; do
-        KAKOUNE_RELAPATH_KAK_ARGS_B64="${KAKOUNE_RELAPATH_KAK_ARGS_B64}${sep}$(printf '%s' "$arg" | base64)"
+        KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${sep}$(printf '%q' "$arg")"
         sep=" "
     done
 
     command kak "$@"
 
-    unset KAKOUNE_RELAPATH_KAK_ARGS_B64
+    unset KAKOUNE_RELAPATH_KAK_ARGS
 }
 ```
 
