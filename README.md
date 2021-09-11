@@ -20,7 +20,7 @@ hook -once ClientCreate .* %{
 **Warning:** Changing any of the plugin's options manually can mess up its functionality. Prefer using them as read-only values.
 
 ## Installation
-[plug.kak](https://github.com/andreyorst/plug.kak)
+[plug.kak](https://github.com/andreyorst/plug.kak):
 ```kak
 plug "https://github.com/SeerLite/relapath.kak" demand relapath %{
     alias global cd relapath-change-directory
