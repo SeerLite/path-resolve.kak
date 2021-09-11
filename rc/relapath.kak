@@ -26,24 +26,24 @@ provide-module relapath %{
 
 			for arg in $KAKOUNE_RELAPATH_KAK_ARGS_B64; do
 				file="$(printf '%s' "$arg" | base64 -d)"
-				printf 'echo -debug "%s"\n' "$file"
-				if [ -n "$file" ] && [ "$kak_buffile" = "$(realpath -- "$file")" ]; then
+				if [ -n "$file" ] && [ "$(realpath -- "$file" 2>/dev/null)" = "$kak_buffile" ]; then
 					cd "$(dirname -- "$file")"
 					file="$PWD/$(basename "$file")"
-					printf 'set-option buffer real_buffile "%s"' "$file"
 					break
 				fi
+				unset file
 			done
+			[ -z "$file" ] && file="$kak_buffile"
+			printf 'set-option buffer real_buffile "%s"' "$file"
 		}
 	}
 
 	hook global BufSetOption (real_buffile|cwd)=.* %{
 		set-option buffer bufname %sh{
-			if [ -n "$kak_opt_real_buffile" ]; then
-				bufname="$(realpath -s --relative-to="$kak_opt_cwd" -- "$kak_opt_real_buffile")"
-			else
-				bufname="$kak_bufname"
-			fi
+			bufname="$(realpath -s --relative-to="$kak_opt_cwd" -- "$kak_opt_real_buffile" 2>/dev/null)"
+
+			# Fall back to %val{bufname} if %opt{real_buffile} was empty or in a non-existing directory
+			[ -z "$bufname" ] && bufname="$kak_bufname"
 
 			# Abbreviate $HOME as ~
 			[ "${bufname#$HOME}" != "$bufname" ] && bufname="~/${bufname#$HOME}"
@@ -77,8 +77,8 @@ provide-module relapath %{
 
 	define-command -hidden relapath-check-buffiles-match %{
 		evaluate-commands %sh{
-			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$kak_buffile" != "$(realpath -- "$kak_opt_buffile")" ]; then
-				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' changed. Falling back to %%val{buffile}: '$kak_buffile'."
+			if [ "$kak_buffile" != "$kak_opt_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
+				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_opt_bufname' doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
 				printf 'set-option buffer real_buffile "%s"' "$kak_buffile"
 			fi
 		}
@@ -122,7 +122,7 @@ provide-module relapath %{
 		evaluate-commands %sh{
 			# Loop all parameters passed to :edit until finding one that matches same path as buffile
 			for arg in "$@"; do
-				if [ "$(realpath -- "$arg")" = "$kak_buffile" ]; then
+				if [ "$(realpath -- "$arg" 2>/dev/null)" = "$kak_buffile" ]; then
 					file="$arg"
 					dirname="$(dirname -- "$file")"
 					if [ ! -d "$dirname" ]; then
