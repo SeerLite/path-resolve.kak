@@ -28,8 +28,10 @@ provide-module relapath %{
 
 			for arg in "$@"; do
 				if [ -n "$arg" ] && [ "$(realpath -- "$arg" 2>/dev/null)" = "$kak_buffile" ]; then
-					cd "$(dirname -- "$arg")"
-					file="$PWD/$(basename "$arg")"
+					dir="${arg%/*}"
+					[ "$dir" = "$arg" ] && dir=.
+					cd "$dir"
+					file="$PWD/${arg##*/}"
 					break
 				fi
 			done
@@ -124,14 +126,17 @@ provide-module relapath %{
 			for arg in "$@"; do
 				if [ "$(realpath -- "$arg" 2>/dev/null)" = "$kak_buffile" ]; then
 					file="$arg"
-					dirname="$(dirname -- "$file")"
-					if [ ! -d "$dirname" ]; then
-						printf 'fail "unable to cd to ""%s"""\n' "$dirname"
+
+					dir="${file%/*}"
+					[ "$dir" = "$file" ] && dir=.
+
+					if [ ! -d "$dir" ]; then
+						printf 'fail "unable to cd to ""%s"""\n' "$dir"
 						exit 1
 					fi
 
-					cd "$dirname"
-					file="$PWD/$(basename "$file")"
+					cd "$dir"
+					file="$PWD/${file##*/}"
 
 					# Remove double '/' when editing file at /
 					[ "${file#//}" != "${file}" ] && file="/${file#//}"
