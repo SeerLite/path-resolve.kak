@@ -27,7 +27,7 @@ plug "https://github.com/SeerLite/relapath.kak" demand relapath %{
     alias global e relapath-edit
     alias global e! relapath-edit-bang
 
-    # Necessary if you use change-directory/edit[!] elsewhere (like other plugins)
+    # Necessary if you use change-directory/edit[!]/rename-buffer elsewhere (like other plugins)
     alias global change-directory relapath-change-directory
     alias global edit relapath-edit
     alias global edit! relapath-edit-bang
@@ -41,13 +41,13 @@ alias global cd relapath-change-directory
 alias global e relapath-edit
 alias global e! relapath-edit-bang
 
-# Necessary if you use change-directory/edit[!] elsewhere (like other plugins)
+# Necessary if you use change-directory/edit[!]/rename-buffer elsewhere (like other plugins)
 alias global change-directory relapath-change-directory
 alias global edit relapath-edit
 alias global edit! relapath-edit-bang
 alias global rename-buffer relapath-rename-buffer
 ```
-**Note:** With the above, the builtin `change-directory` and `edit[!]` commands are still available as `relapath-originalcmd-change-directory` and `relapath-originalcmd-edit[-bang]`, respectively.
+**Note:** With the above, the builtin `change-directory`, `edit[!]` and `rename-buffer` commands are still available as `relapath-originalcmd-change-directory`, `relapath-originalcmd-edit[-bang]` and `relapath-originalcmd-rename-buffer`, respectively.
 You can skip aliasing the long versions and alias only the short ones, but if you or other plugins use those commands elsewhere, relapath.kak won't be able to use their arguments.
 
 This should be good enough to work inside Kakoune. But you may also want to [set up the modeline](#modeline) or [avoid dereferencing the file path when passed from the command line](#dont-dereference-file-path-when-passed-from-the-command-line).
