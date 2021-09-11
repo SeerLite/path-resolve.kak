@@ -28,6 +28,8 @@ provide-module relapath %{
 				file="$(printf '%s' "$arg" | base64 -d)"
 				printf 'echo -debug "%s"\n' "$file"
 				if [ -n "$file" ] && [ "$kak_buffile" = "$(realpath "$file")" ]; then
+					cd "$(dirname "$file")"
+					file="$PWD/$(basename "$file")"
 					printf 'set-option buffer real_buffile "%s"' "$file"
 					break
 				fi
