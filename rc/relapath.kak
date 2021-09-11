@@ -7,6 +7,7 @@ provide-module relapath %{
 	alias global relapath-originalcmd-change-directory change-directory
 	alias global relapath-originalcmd-edit edit
 	alias global relapath-originalcmd-edit-bang edit!
+	alias global relapath-originalcmd-rename-buffer rename-buffer
 
 	evaluate-commands -buffer '*debug*' %{
 		set-option buffer buffile %val{buffile}
@@ -142,6 +143,10 @@ provide-module relapath %{
 
 	define-command -file-completion -params .. relapath-edit-bang %{
 		relapath-edit-unwrapped relapath-originalcmd-edit-bang %arg{@}
+	}
+
+	define-command -file-completion -params .. relapath-rename-buffer %{
+		relapath-edit-unwrapped relapath-originalcmd-rename-buffer %arg{@}
 	}
 
 	define-command relapath-modelinefmt-replace -params 1 %{

@@ -4,7 +4,7 @@ Non-dereferencing directory structure tracker plugin for the [Kakoune](https://k
 [~/dir/dir/symlink/dir] ../../dir/dir/symlink/symlink.txt [+] 1 sel - client0@[413612]
 ```
 
-relapath.kak provides alternative wrappers for the `:change-directory` and `:edit[!]` commands and exposes `buffile` and `bufname` options as non-dereferencing variants to their builtin `%val` values.
+relapath.kak provides alternative wrappers for the `:change-directory`, `:edit[!]` and even `rename-buffer` commands and exposes `buffile` and `bufname` options as non-dereferencing variants to their builtin `%val` values.
 
 Additionally, the options `cwd` and `pretty_cwd` exist for your scripting/modeline needs.
 They're pretty much what you can imagine: `/home/you/projects` vs `~/projects`. See [Configuration/Modeline](#modeline).
@@ -31,6 +31,7 @@ plug "https://github.com/SeerLite/relapath.kak" demand relapath %{
     alias global change-directory relapath-change-directory
     alias global edit relapath-edit
     alias global edit! relapath-edit-bang
+    alias global rename-buffer relapath-rename-buffer
 }
 ```
 or clone the repo into `autoload/` and require+configure manually in `kakrc`:
@@ -44,6 +45,7 @@ alias global e! relapath-edit-bang
 alias global change-directory relapath-change-directory
 alias global edit relapath-edit
 alias global edit! relapath-edit-bang
+alias global rename-buffer relapath-rename-buffer
 ```
 **Note:** With the above, the builtin `change-directory` and `edit[!]` commands are still available as `relapath-originalcmd-change-directory` and `relapath-originalcmd-edit[-bang]`, respectively.
 You can skip aliasing the long versions and alias only the short ones, but if you or other plugins use those commands elsewhere, relapath.kak won't be able to use their arguments.
