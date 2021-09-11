@@ -94,20 +94,20 @@ provide-module relapath %{
 					;;
 			esac
 
-			dirname="$(dirname "$file")"
-			if [ ! -d "$dirname" ]; then
-				printf 'fail "unable to cd to ""%s"""\n' "$dirname"
+			if [ ! -d "$directory" ]; then
+				printf 'fail "unable to cd to ""%s"""\n' "$directory"
 				exit 1
 			fi
 
-			cd "$dirname"
+			cd "$directory"
 			printf 'set-option global cwd "%s"' "$PWD"
 		}
 		change-directory %opt{cwd}
 	}
 
-	define-command -file-completion -params .. relapath-edit %{
-		edit %arg{@}
+	define-command -hidden -file-completion -params .. relapath-edit-unwrapped %{
+		# Will use edit or edit! depending on first argument passed by the wrapper commands
+		%arg{@}
 		evaluate-commands %sh{
 			# Loop all parameters passed to :edit until finding one that matches same path as buffile
 			for arg in "$@"; do
@@ -131,6 +131,14 @@ provide-module relapath %{
 				fi
 			done
 		}
+	}
+
+	define-command -file-completion -params .. relapath-edit %{
+		relapath-edit-unwrapped edit %arg{@}
+	}
+
+	define-command -file-completion -params .. relapath-edit-bang %{
+		relapath-edit-unwrapped edit! %arg{@}
 	}
 
 	define-command relapath-modelinefmt-replace -params 1 %{
