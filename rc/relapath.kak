@@ -141,7 +141,6 @@ provide-module relapath %{
 					# Remove double '/' when editing file at /
 					[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-					# printf 'hook -once global WinDisplay "%s" %%{ set-option buffer relapath_real_buffile "%s" };' "$(realpath "$file")" "$file"
 					printf 'set-option buffer relapath_real_buffile "%s"' "$file"
 					break
 				fi
