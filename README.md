@@ -54,16 +54,34 @@ This should be good enough to work inside Kakoune. But you may also want to [set
 
 ## Configuration
 ### Modeline
-relapath.kak provides the `relapath-modelinefmt` command which replaces occurrences of `%val{buffile}` and `%val{bufname}` in the `modelinefmt` with relapath.kak's option variants.
+#### [powerline.kak](https://github.com/andreyorst/powerline.kak)
+relapath.kak provides a command to override powerline.kak's default bufname module to use relapath.kak's %val{buffile/bufname} option variants. Add the following to your relapath.kak configuration:
+```
+relapath-override-powerline <path to powerline.kak>
+```
+
+if you use plug.kak, you can get `<path to powerline.kak>` like this:
+```
+relapath-override-powerline "%opt{plug_install_dir}/powerline.kak"
+```
+
+**Note:** Make sure this command runs **before** activating powerline.kak with `powerline-start`.
+
+Currently there's no builtin way to add `%opt{pretty_cwd}` to the powerline.kak, but I'm sure it's easy to do if you know what you're doing. PRs to add this functionality are welcome.
+
+#### modelinefmt
+If you use a more minimalistic setup, you can use relapath.kak's `relapath-modelinefmt` command which replaces occurrences of `%val{buffile/bufname}` in the `modelinefmt` with relapath.kak's option variants.
 ```kak
 relapath-modeline-fmt-replace global
 ```
+
 The `pretty_cwd` option is also a good candidate to place in the modeline if you want to know in what directory you're in.
 ```kak
 set-option global modelinefmt "[%%opt{pretty_cwd}] %opt{modelinefmt}"
 # or
 set-option global modelinefmt "%%opt{pretty_cwd} %opt{modelinefmt}"
 ```
+
 ### Don't dereference file path when passed from the command line
 When the file you want to edit is (inside) a symlink and you pass it as an argument for `kak`, Kakoune will open the file directly and it'll be too late for relapath.kak to do anything.
 
@@ -84,6 +102,7 @@ done
 
 exec kak "$@"
 ```
+
 relapath.kak will scan the encoded arguments in `$KAKOUNE_RELAPATH_KAK_ARGS_B64` and try to match the file you're editing.
 
 **Note:** I'm using Base64 as it was the safest and easiest way I found to escape the arguments. Other solutions required meticulous parsing or the use of `eval`.

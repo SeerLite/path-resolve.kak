@@ -161,4 +161,16 @@ provide-module relapath %{
 			printf '%s' "$kak_opt_modelinefmt" | sed 's/%val{\(bufname\|buffile\)}/%opt{\1}/g'
 		}
 	}
+
+	define-command relapath-override-powerline -params 1 %{
+		evaluate-commands %sh{
+			sed -E 's/provide-module/provide-module -override/;s/kak_buf(name|file)/kak_opt_buf\1/g' "$1/rc/modules/bufname.kak"
+		}
+
+		hook global ModuleLoaded powerline %{
+			hook global BufSetOption bufname=.* %{
+				powerline-update-bufname
+			}
+		}
+	}
 }
