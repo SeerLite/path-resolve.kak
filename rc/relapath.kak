@@ -35,7 +35,6 @@ provide-module relapath %{
 					break
 				fi
 			done
-			[ -z "$file" ] && file="$kak_buffile"
 			printf 'set-option buffer relapath_real_buffile "%s"' "$file"
 		}
 	}
