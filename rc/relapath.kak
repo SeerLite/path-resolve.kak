@@ -101,25 +101,25 @@ provide-module relapath %{
 
 			case "$1" in
 				"")
-					directory="$HOME"
+					dir="$HOME"
 					;;
 				/*)
-					directory="$1"
+					dir="$1"
 					;;
 				~*)
-					directory="${HOME}${1#\~}" # Expand ~ to $HOME
+					dir="${HOME}${1#\~}" # Expand ~ to $HOME
 					;;
 				*)
-					directory="${kak_opt_cwd}/${1}"
+					dir="${kak_opt_cwd}/${1}"
 					;;
 			esac
 
-			if [ ! -d "$directory" ]; then
-				printf 'fail "relapath.kak: unable to cd to ""%s"""\n' "$directory"
+			if [ ! -d "$dir" ]; then
+				printf 'fail "relapath.kak: unable to cd to ""%s"""\n' "$dir"
 				exit 1
 			fi
 
-			cd "$directory"
+			cd "$dir"
 			printf 'set-option global cwd "%s"\n' "$PWD"
 		}
 		relapath-originalcmd-change-directory %opt{cwd}
