@@ -115,7 +115,7 @@ provide-module relapath %{
 			esac
 
 			if [ ! -d "$directory" ]; then
-				printf 'fail "unable to cd to ""%s"""\n' "$directory"
+				printf 'fail "relapath.kak: unable to cd to ""%s"""\n' "$directory"
 				exit 1
 			fi
 
@@ -140,7 +140,7 @@ provide-module relapath %{
 					[ "$dir" = "$file" ] && dir=.
 
 					if [ ! -d "$dir" ]; then
-						printf 'fail "unable to cd to ""%s"""\n' "$dir"
+						printf 'fail "relapath.kak: unable to cd to ""%s"""\n' "$dir"
 						exit 1
 					fi
 
