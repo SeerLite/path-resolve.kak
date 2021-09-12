@@ -85,7 +85,7 @@ provide-module relapath %{
 			fi
 
 			if [ "$kak_opt_buffile" != "$kak_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
-				printf 'echo -debug "%s"\n' "relapath.kak: Path for buffer '$kak_bufname' ('$kak_opt_relapath_internal_bufname') doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
+				printf 'echo -debug "%s"\n' "relapath.kak: Path for buffer '$kak_bufname' ('$kak_opt_bufname') doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
 				printf 'set-option buffer relapath_real_buffile "%s"\n' "$kak_buffile"
 			fi
 		}
