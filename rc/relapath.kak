@@ -19,9 +19,9 @@ provide-module relapath %{
 		evaluate-commands %sh{
 			cwd="$kak_client_env_PWD"
 			if [ "$cwd" -ef "$PWD" ]; then
-				printf 'set-option global cwd "%s";' "$cwd"
+				printf 'set-option global cwd "%s"\n' "$cwd"
 			else
-				printf 'set-option global cwd "%s";' "$PWD"
+				printf 'set-option global cwd "%s"\n' "$PWD"
 			fi
 
 			eval "set -- $KAKOUNE_RELAPATH_KAK_ARGS"
@@ -35,7 +35,7 @@ provide-module relapath %{
 					break
 				fi
 			done
-			printf 'set-option buffer relapath_real_buffile "%s"' "$file"
+			printf 'set-option buffer relapath_real_buffile "%s"\n' "$file"
 		}
 		relapath-check-buffiles-and-cwd
 	}
@@ -80,13 +80,13 @@ provide-module relapath %{
 	define-command -hidden relapath-check-buffiles-and-cwd %{
 		evaluate-commands %sh{
 			if [ "$(realpath -- "$kak_opt_cwd" 2>/dev/null)" != "$(realpath -- "$PWD" 2>/dev/null)" ]; then
-				printf 'echo -debug "%s";' "relapath.kak: Working directory '$kak_opt_cwd' doesn't match internal one. Falling back to '$PWD'."
-				printf 'set-option global cwd "%s";' "$PWD"
+				printf 'echo -debug "%s"\n' "relapath.kak: Working directory '$kak_opt_cwd' doesn't match internal one. Falling back to '$PWD'."
+				printf 'set-option global cwd "%s"\n' "$PWD"
 			fi
 
 			if [ "$kak_opt_buffile" != "$kak_buffile" ] && [ "$(realpath -- "$kak_opt_buffile" 2>/dev/null)" != "$kak_buffile" ]; then
-				printf 'echo -debug "%s";' "relapath.kak: Path for buffer '$kak_bufname' ('$kak_opt_relapath_internal_bufname') doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
-				printf 'set-option buffer relapath_real_buffile "%s";' "$kak_buffile"
+				printf 'echo -debug "%s"\n' "relapath.kak: Path for buffer '$kak_bufname' ('$kak_opt_relapath_internal_bufname') doesn't match. Falling back to %%val{buffile}: '$kak_buffile'."
+				printf 'set-option buffer relapath_real_buffile "%s"\n' "$kak_buffile"
 			fi
 		}
 	}
@@ -120,7 +120,7 @@ provide-module relapath %{
 			fi
 
 			cd "$directory"
-			printf 'set-option global cwd "%s"' "$PWD"
+			printf 'set-option global cwd "%s"\n' "$PWD"
 		}
 		relapath-originalcmd-change-directory %opt{cwd}
 	}
@@ -150,7 +150,7 @@ provide-module relapath %{
 					# Remove double '/' when editing file at /
 					[ "${file#//}" != "${file}" ] && file="/${file#//}"
 
-					printf 'set-option buffer relapath_real_buffile "%s"' "$file"
+					printf 'set-option buffer relapath_real_buffile "%s"\n' "$file"
 					break
 				fi
 			done
