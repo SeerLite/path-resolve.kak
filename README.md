@@ -22,7 +22,7 @@ hook -once ClientCreate .* %{
 ## Installation
 [plug.kak](https://github.com/andreyorst/plug.kak):
 ```kak
-plug "https://github.com/SeerLite/relapath.kak" demand relapath %{
+plug "https://github.com/SeerLite/relapath.kak" demand relapath config %{
     alias global cd relapath-change-directory
     alias global e relapath-edit
     alias global e! relapath-edit-bang
