@@ -96,8 +96,7 @@ As a workaround, we can setup a wrapper for `kak` and use that instead of the re
 export KAKOUNE_RELAPATH_KAK_ARGS
 
 for arg in "$@"; do
-    KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${sep}$(printf '%q' "$arg")"
-    sep=" "
+    KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${KAKOUNE_RELAPATH_KAK_ARGS:+ }$(printf '%q' "$arg")"
 done
 
 exec kak "$@"
@@ -114,8 +113,7 @@ kak() {
     export KAKOUNE_RELAPATH_KAK_ARGS
 
     for arg in "$@"; do
-        KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${sep}$(printf '%q' "$arg")"
-        sep=" "
+        KAKOUNE_RELAPATH_KAK_ARGS="${KAKOUNE_RELAPATH_KAK_ARGS}${KAKOUNE_RELAPATH_KAK_ARGS:+ }$(printf '%q' "$arg")"
     done
 
     command kak "$@"
